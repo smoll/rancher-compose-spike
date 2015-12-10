@@ -2,6 +2,22 @@
 
 Doing this on a Vagrant-based setup for testing purposes, but this is easily extrapolated to an AWS EC2-based environment. There's even an [Ansible playbook](https://github.com/joshuacox/ansibleplaybook-rancher) if we want finer-grained control over agent provisioning (over just using the UI).
 
+**TL;DR Rancher lets you seamlessly start up an entire Docker-based stack via a clean UI, and Rancher Compose provides a familiar CLI interface to the platform**
+
+### Concepts
+
+**Rancher Server:** UI that talks to all the Rancher Agents. Log into the UI to do initial setup (create Environment(s), add Host(s) to each env, set up ACLs.)
+
+**Rancher Agent:** Docker container installed on each Docker host, responsible for managing the entire lifecycle of service containers & load balancer containers.
+
+**Environment:** separate hosts, ACLs for completely isolated "Dev", "Staging", and "Prod" envs.
+
+**Stack:** multiple services, all linked together (for example, a flask app that talks to a DB). e.g. the entire `docker-compose.yml` Can link to an external service NOT managed by Rancher (e.g. some other AWS service), or even services in other stacks (using "external links").
+
+**Service:** N instances of a particular app. e.g. `web:` in your `docker-compose.yml`, can scale transparently, and Rancher automatically locates these containers based on explicit scheduling rules.
+
+There seems to be multiple ways to slice up services per stack, but the simplest thing to try at first might be to define all of the microservices in a single `docker-compose.yml`. Very loosely-coupled or completely isolated groups of services can have their own compose yml, though.
+
 ### Setup
 
 #### One-time
@@ -13,7 +29,7 @@ Doing this on a Vagrant-based setup for testing purposes, but this is easily ext
 
 0. I set up ACL using GitHub authentication, and registered it as a Developer app (very easy step-by-step directions from the Rancher UI).
 
-0. I added my first host manually (Vagrant-based) using the copy+paste commands from the UI, but they provide a way to bootstrap a [EC2-based host](http://172.19.8.100:8080/infra/hosts/add/amazonec2) by supplying AWS creds in the UI. Note that I did *not* use a RancherOS-based box, it seems to work fine with an Ubuntu/Debian/CentOS box.
+0. I added my first host manually (Vagrant-based, hardcoded an IP of `192.168.50.101`) using the copy+paste commands from the UI, but they provide a way to bootstrap a [EC2-based host](http://172.19.8.100:8080/infra/hosts/add/amazonec2) by supplying AWS creds in the UI. Note that I did *not* use a RancherOS-based box, it seems to work fine with an Ubuntu/Debian/CentOS box.
 
 0. Generate an [API key/secret pair](http://172.19.8.100:8080/settings/api) for use by CI server.
 
@@ -86,6 +102,12 @@ Doing this on a Vagrant-based setup for testing purposes, but this is easily ext
     rancher-compose -p stacksonstacks up # bring up containers with new config
     ```
 
+    Can take a less brute-force approach and do a rolling deploy, but doing this for simplicity's sake. The `rancher-compose` CLI also lets you view aggregated logs with:
+
+    ```
+    rancher-compose -p stacksonstacks logs
+    ```
+
 ### TODO: test failover
 
 0. Add 2 more hosts
@@ -98,3 +120,12 @@ Doing this on a Vagrant-based setup for testing purposes, but this is easily ext
 
     0. that no requests were dropped
     0. the time it takes for a new instance of the app container to be launched on host 3
+    0. what happens after host 1 eventually recovers
+
+#### Other things to explore
+
+* Multiple Rancher Servers (masters)
+
+* [Monitoring](http://rancher.com/comparing-monitoring-options-for-docker-deployments/). There's some basic monitoring [built in](http://172.19.8.100:8080/infra/containers/1i13/labels) too.
+
+* Logging. Rancher already provides built-in rudimentary (but real-time) log aggregation in the UI for all containers; this may be enough for our needs. Visualization in [Loggly](http://rancher.com/aggregating-application-logs-from-docker-containers-with-loggly/) is another possibility, though. [Sysdig](http://rancher.com/sysdig-announces-integrated-docker-monitoring-in-rancher/) too.
