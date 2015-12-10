@@ -1,0 +1,17 @@
+# Pulled from http://172.19.8.100:8080/apps/1e2/code
+# Also see http://docs.rancher.com/rancher/rancher-compose/scheduling/
+
+RancherLB:
+  ports:
+  - '80'
+  labels:
+    io.rancher.loadbalancer.target.flask-nanoservice: flask-nanoservice.examplez.com=5000
+  tty: true
+  image: rancher/load-balancer-service
+  links:
+  - flask-nanoservice:flask-nanoservice
+flask-nanoservice:
+  labels:
+    io.rancher.container.pull_image: always
+  tty: true
+  image: smoll/flask-nanoservice:latest
