@@ -98,14 +98,43 @@ There seems to be multiple ways to slice up services per stack, but the simplest
 0. Run the `rancher-compose` command to up the service(s):
 
     ```
-    rancher-compose -p stacksonstacks rm --force # hard kill any running containers
-    rancher-compose -p stacksonstacks up # bring up containers with new config
+    $ rancher-compose -p stacksonstacks rm --force # hard kill any running containers
+
+    INFO[0000] Project [stacksonstacks]: Deleting project
+    INFO[0000] [0/2] [flask-nanoservice]: Deleting
+    INFO[0000] [0/2] [RancherLB]: Deleting
+    INFO[0000] [0/2] [RancherLB]: Deleted
+    INFO[0000] [0/2] [flask-nanoservice]: Deleted
+
+    $ time rancher-compose -p stacksonstacks up -d # bring up containers with new config
+
+    INFO[0000] Creating service flask-nanoservice
+    INFO[0000] Creating service RancherLB
+    INFO[0001] Project [stacksonstacks]: Starting project
+    INFO[0001] [0/2] [flask-nanoservice]: Starting
+    INFO[0014] [1/2] [flask-nanoservice]: Started
+    INFO[0014] [1/2] [RancherLB]: Starting
+    INFO[0025] [2/2] [RancherLB]: Started
+
+    real  0m25.189s
+    user  0m0.113s
+    sys 0m0.039s
     ```
 
     Can take a less brute-force approach and do a rolling deploy, but doing this for simplicity's sake. The `rancher-compose` CLI also lets you view aggregated logs with:
 
     ```
-    rancher-compose -p stacksonstacks logs
+    $ rancher-compose -p stacksonstacks logs
+
+    flask-nanoservice_1 | 2015-12-10T22:44:46.340549514Z  * Restarting with stat
+    2015-12-10T22:44:46.494737305Z  * Debugger is active!
+    2015-12-10T22:44:46.498820134Z  * Debugger pin code: 265-654-587
+    2015-12-10T22:45:32.518299140Z 10.42.59.155 - - [10/Dec/2015 22:45:32] "GET / HTTP/1.1" 200 -
+    2015-12-10T22:45:49.043567439Z 10.42.59.155 - - [10/Dec/2015 22:45:49] "GET / HTTP/1.1" 200 -
+    2015-12-10T22:45:50.081264159Z 10.42.59.155 - - [10/Dec/2015 22:45:50] "GET / HTTP/1.1" 200 -
+    flask-nanoservice_1 | 2015-12-10T22:45:51.120578062Z 10.42.59.155 - - [10/Dec/2015 22:45:51] "GET / HTTP/1.1" 200 -
+    flask-nanoservice_1 | 2015-12-10T22:45:52.158090131Z 10.42.59.155 - - [10/Dec/2015 22:45:52] "GET / HTTP/1.1" 200 -
+    flask-nanoservice_1 | 2015-12-10T22:45:53.196547216Z 10.42.59.155 - - [10/Dec/2015 22:45:53] "GET / HTTP/1.1" 200 -
     ```
 
 ### TODO: test failover
