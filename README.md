@@ -72,12 +72,9 @@ Doing this on a Vagrant-based setup for testing purposes, but this is easily ext
 0. On remote deployer machine a.k.a. Jenkins slave a.k.a. CI server build executor, set a bunch of environment variables so `rancher-compose` connects to the correct Rancher server.
 
     ```
-    # Set the url that Rancher is on
-    $ export RANCHER_URL=http://172.19.8.100:8080/
-    # Set the access key, i.e. username
-    $ export RANCHER_ACCESS_KEY=2C28400B70260B8A3542
-    # Set the secret key, i.e. password
-    $ export RANCHER_SECRET_KEY=GiYWRoNTz2jv79xU3WHknkcuHYeDgJDtEE8k31ih
+    export RANCHER_URL=http://172.19.8.100:8080/
+    export RANCHER_ACCESS_KEY=2C28400B70260B8A3542
+    export RANCHER_SECRET_KEY=GiYWRoNTz2jv79xU3WHknkcuHYeDgJDtEE8k31ih
     ```
 
 0. Make a code change to the version-controlled compose files, e.g. change `smoll/flask-nanoservice:latest` to `smoll/flask-nanoservice:1.0`
